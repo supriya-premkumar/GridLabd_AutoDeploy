@@ -2,7 +2,7 @@
 set -xe
 MAX_RETRIES=10
 if [ "$#" -lt 1 ]; then
-	echo "Script to create a AWS Instances for VADER-LAB"
+	echo "Script to create AWS Instances for GridLabD"
 	echo "Usage: $0 <instance count> [create-key]"
   echo "Also please run aws configure prior to running this script"
 	exit 1
