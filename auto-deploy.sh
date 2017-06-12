@@ -19,7 +19,7 @@ set -u
 IMAGE_ID="ami-0bd66a6f" #ca-central-1 (Amazon Linux AMI- Canada)
 SG_ID="sg-72fb931b"
 INSTANCE_TYPE="t2.micro"
-PREFIX="GridLabD"
+PREFIX="VADER-DATA-GridLabD"
 ADMIN_USER="ec2-user"
 KEY=GridLabd-Key
 KEY_PATH=GridLabD-creds-ca-central-1
