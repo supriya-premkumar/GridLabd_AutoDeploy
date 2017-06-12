@@ -23,7 +23,7 @@ PREFIX="VADER-DATA-GridLabD"
 ADMIN_USER="ec2-user"
 KEY=GridLabd-Key
 KEY_PATH=GridLabD-creds-ca-central-1
-MAX_RETRIES=10
+MAX_RETRIES=7
 
 ############ Default Helper Commands ##############
 ssh_cmd="ssh -o StrictHostKeyChecking=no -o ExitOnForwardFailure=yes -o UserKnownHostsFile=/dev/null"
