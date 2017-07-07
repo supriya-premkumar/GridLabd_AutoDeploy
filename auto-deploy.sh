@@ -16,13 +16,13 @@ echo $CREATE_KEY
 
 set -u
 
-IMAGE_ID="ami-0bd66a6f" #ca-central-1 (Amazon Linux AMI- Canada)
-SG_ID="sg-72fb931b"
+IMAGE_ID="ami-563a1736" #us-west-1 (Amazon Linux AMI- N.California)
+SG_ID="sg-42ad3325"
 INSTANCE_TYPE="t2.micro"
 PREFIX="VADER-DATA-GridLabD"
 ADMIN_USER="ec2-user"
 KEY=GridLabd-Key
-KEY_PATH=GridLabD-creds-ca-central-1
+KEY_PATH=GridLabD-creds-us-west-1
 MAX_RETRIES=7
 
 ############ Default Helper Commands ##############
