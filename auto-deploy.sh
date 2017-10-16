@@ -17,7 +17,9 @@ echo $CREATE_KEY
 set -u
 
 IMAGE_ID="ami-563a1736" #us-west-1 (Amazon Linux AMI- N.California)
-SG_ID="sg-42ad3325"
+# SG_ID="sg-42ad3325"
+SG_NAME="VADER-DATA-GridLabD-Security-Group"
+REGION="us-west-1"
 INSTANCE_TYPE="t2.micro"
 PREFIX="VADER-DATA-GridLabD"
 ADMIN_USER="ec2-user"
@@ -29,6 +31,8 @@ MAX_RETRIES=7
 ssh_cmd="ssh -o StrictHostKeyChecking=no -o ExitOnForwardFailure=yes -o UserKnownHostsFile=/dev/null"
 scp_cmd="scp -o StrictHostKeyChecking=no -o ExitOnForwardFailure=yes -o UserKnownHostsFile=/dev/null"
 
+############Adding rules to security group ###########
+aws_add_port_cmd="aws --region $REGION ec2 authorize-security-group-ingress --group-name $SG_NAME"
 
 
 function create_key()
@@ -65,11 +69,30 @@ function is_sshd_up()
 	set -e
 }
 
+function create_security_group()
+{
+	echo "************ Creating Security Group ******************"
+	set +e
+	sg_vader=$(aws --region $REGION --output json ec2 create-security-group --group-name $SG_NAME --description "VADER-DATA-GridLabD Security Group" | jq .GroupId | sed s_'"'__g)
+	$aws_add_port_cmd --protocol tcp --port 22 --cidr 0.0.0.0/0
+	$aws_add_port_cmd --protocol tcp --port 80 --cidr 0.0.0.0/0
+	$aws_add_port_cmd --protocol tcp --port 6267 --cidr 0.0.0.0/0
+	$aws_add_port_cmd --protocol tcp --port 8091 --cidr 0.0.0.0/0
+	$aws_add_port_cmd --protocol tcp --port 8090 --cidr 0.0.0.0/0
+	$aws_add_port_cmd --protocol tcp --port 3306 --cidr 0.0.0.0/0
+	$aws_add_port_cmd --protocol tcp --port 443 --cidr 0.0.0.0/0
+	return $sg_vader
+
+}
+
+ InstanceIdTest=$(create_security_group)
+
+
 function deploy_instances()
 {
   for i in `seq 1 $INSTANCE_COUNT`;
 	do
-    INSTANCE_ID=$(aws ec2 run-instances --image-id $IMAGE_ID --security-group-ids $SG_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY  --query 'Instances[0].InstanceId' | sed s_'"'__g)
+    INSTANCE_ID=$(aws ec2 run-instances --image-id $IMAGE_ID --security-group-ids create_security_group --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY  --query 'Instances[0].InstanceId' | sed s_'"'__g)
     INSTANCE_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' | sed s_'"'__g)
 
     aws ec2 create-tags --resources $INSTANCE_ID --tags Key=Name,Value=$PREFIX-$i
@@ -77,11 +100,11 @@ function deploy_instances()
     echo $INSTANCE_IP > $KEY_PATH/instance-ip-$i
     sleep 30
 		is_sshd_up $INSTANCE_IP "$KEY_PATH/$KEY.pem"
-    $scp_cmd -i $KEY_PATH/$KEY.pem install-deps.sh $ADMIN_USER@$INSTANCE_IP:~/
-    $ssh_cmd -i $KEY_PATH/$KEY.pem $ADMIN_USER@$INSTANCE_IP 'bash  ~/install-deps.sh'
-    $scp_cmd -i $KEY_PATH/$KEY.pem install-repos.sh $ADMIN_USER@$INSTANCE_IP:~/
-    $ssh_cmd -i $KEY_PATH/$KEY.pem $ADMIN_USER@$INSTANCE_IP 'bash  ~/install-repos.sh'
+    # $scp_cmd -i $KEY_PATH/$KEY.pem install-deps.sh $ADMIN_USER@$INSTANCE_IP:~/
+    # $ssh_cmd -i $KEY_PATH/$KEY.pem $ADMIN_USER@$INSTANCE_IP 'bash  ~/install-deps.sh'
+    # $scp_cmd -i $KEY_PATH/$KEY.pem install-repos.sh $ADMIN_USER@$INSTANCE_IP:~/
+    # $ssh_cmd -i $KEY_PATH/$KEY.pem $ADMIN_USER@$INSTANCE_IP 'bash  ~/install-repos.sh'
 	done
 }
 
-deploy_instances
+# deploy_instances
