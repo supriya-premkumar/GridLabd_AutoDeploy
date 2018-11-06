@@ -16,8 +16,8 @@ echo $CREATE_KEY
 
 set -u
 
-IMAGE_ID="ami-0bd66a6f" #ca-central-1 (Amazon Linux AMI- Canada)
-SG_ID="sg-72fb931b"
+IMAGE_ID= <image id>
+SG_ID= <sg id>
 INSTANCE_TYPE="t2.micro"
 PREFIX="GridLabD"
 ADMIN_USER="ec2-user"
